@@ -5,7 +5,7 @@ import re
 
 items_list = [0]*0
 
-def extraction(result) :
+def extraction(id_group, result) :
     for product in result :
         #produt = product.find("div", class_="s-item__image-wrapper").find("div", class_="s-item__image-helper")
         name = product.find("h3", attrs={"class" : "s-item__title"})
@@ -15,6 +15,6 @@ def extraction(result) :
         price = product.find("span", attrs={"class" : "s-item__price"})
         price = re.findall('(\d\d,\d\d\d|\d,\d\d\d|\d\d\d|\d\d)', price.getText())
         price = int(price[0].replace(',', ''))
-        item = Product(name.getText(), link, img_link, price)
+        item = Product(id_group, name.getText(), link, img_link, price)
         items_list.append(item)
-        return items_list
+    return items_list
