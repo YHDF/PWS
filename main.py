@@ -4,6 +4,13 @@ import beautifulsoup as bs
 import multiprocessing as mp
 import uuid
 
+from mapping import Products
+from sqlalchemy import *
+from sqlalchemy.orm import sessionmaker
+
+engine = create_engine('mariadb://localhost:3306/Testing?user=root&password=yh', echo=True)
+
+
 products = [[]for x in range(2)]
 group_ids = []
 db = mysql.connector.connect(
@@ -14,6 +21,7 @@ db = mysql.connector.connect(
 cursor = db.cursor(buffered=True)
 cursor.execute("USE Testing")
 
+nbpage = 10
 
 
 def get_link() :
@@ -22,21 +30,23 @@ def get_link() :
     for cell in row:
         if 'amazon' in cell[1] :
             group_ids.append(cell[0])
-            a_products = selenium.init(cell[0], cell[1], cell[2])
+            for n in range(0,nbpage) :
+                a_products = selenium.init(cell[0], cell[1] + str(n), cell[2])
             products[0].extend(a_products)
         elif 'ebay' in cell[1] :
             group_ids.append(cell[0])
-            e_products = bs.init(cell[0], cell[1], cell[2])
+            for n in range(0, nbpage) : 
+                e_products = bs.init(cell[0], cell[1] + str(n), cell[2])
             products[1].extend(e_products)
-    #print(products[0][10].name)
-    sql = "INSERT INTO products (id, group_id, name, link, image, price) VALUES (%s, %s, %s, %s, %s, %s)"
-    for arr in products :
+
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    for arr in products:
         for product in arr :
-            print(product.name)
-            val = (str(uuid.uuid4()), product.id_group, product.name, product.link, product.img_link, product.price)
-            cursor.execute(sql, val)
-            db.commit()
-    print(cursor.rowcount, "was inserted.")
+            result = Products(id = str(uuid.uuid4()),group_id=product.id_group ,name=product.name, link=product.link, image=product.img_link, price=product.price)
+            session.add(result)
+    session.commit()
 
 
 def main() :
