@@ -8,7 +8,8 @@ from mapping import Products
 from sqlalchemy import *
 from sqlalchemy.orm import sessionmaker
 
-engine = create_engine('mariadb://localhost:3306/Testing?user=root&password=yh', echo=True)
+#to edit and add the URI corresponding depending on the system 
+engine = create_engine('mariadb://localhost:3306/(Schema-Name)?user=(username)&password=(password)', echo=True)
 
 
 products = [[]for x in range(2)]
